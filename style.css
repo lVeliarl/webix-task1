@@ -1,0 +1,29 @@
+.app-header {
+  background-color: #657584;
+}
+
+.app-name .webix_el_box {
+  color: white;
+}
+
+.profile .webix_el_box .webix_button {
+  color: white;
+  background-color: #657584;
+}
+
+.profile .webix_el_box .webix_button .webix_icon_btn {
+  color: white;
+}
+
+.list {
+  background-color: #EEE;
+}
+
+.add-new .webix_el_box .webix_button {
+  background-color: #1CA1C1;
+  color: #FFF;
+}
+
+.footer .webix_template {
+  text-align: center;
+}
