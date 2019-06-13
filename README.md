@@ -2,4 +2,4 @@
 
 ## Link to the deployed project
 
-`https://veliar-webix-task1.netlify.com/`
+[https://veliar-webix-task1.netlify.com/](https://veliar-webix-task1.netlify.com/)
