@@ -35,7 +35,7 @@ const form = [
             text: "Do you really want to clear this form?"
           }).then(
             function () {
-              $$("edit_films").setValues("");
+              $$("edit_films").clear();
               $$("edit_films").clearValidation();
               webix.message("Form cleared");
             },
