@@ -31,8 +31,8 @@ const form = [
       {
         view: "button", value: "Clear", click: function () {
           webix.confirm({
-            title: "Form is incomplete",
-            text: "Do you still want to continue?"
+            title: "Clear the form",
+            text: "Do you really want to clear this form?"
           }).then(
             function () {
               $$("edit_films").setValues("");
