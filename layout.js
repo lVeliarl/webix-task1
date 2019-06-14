@@ -30,8 +30,19 @@ const form = [
       },
       {
         view: "button", value: "Clear", click: function () {
-          $$("edit_films").setValues("");
-          $$("edit_films").clearValidation();
+          webix.confirm({
+            title: "Form is incomplete",
+            text: "Do you still want to continue?"
+          }).then(
+            function () {
+              $$("edit_films").setValues("");
+              $$("edit_films").clearValidation();
+              webix.message("Form cleared");
+            },
+            function () {
+              webix.message("Cancelled");
+            }
+          );
         }
       }
     ]

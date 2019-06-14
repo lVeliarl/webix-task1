@@ -1,6 +1,6 @@
 # webix-tasks
 
-## Link to the deployed project
+## Links to the deployed projects
 
 ### Task 1
 [https://veliar-webix-task1.netlify.com/](https://veliar-webix-task1.netlify.com/)
