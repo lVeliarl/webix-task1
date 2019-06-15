@@ -17,3 +17,11 @@
 .hover {
   background-color: #83c8d1;
 }
+
+.remove-customer {
+  float: right;
+}
+
+.customers_list .webix_list_item:nth-child(-n+5) {
+  background-color: rgb(114, 155, 202);
+}

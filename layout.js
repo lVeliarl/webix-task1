@@ -32,17 +32,6 @@ const sidebar = {
   ]
 };
 
-const small_film_set = [
-  { id: 1, title: "The Shawshank Redemption", year: 1994, votes: 678790, rating: 9.2, rank: 1, category: "Thriller" },
-  { id: 2, title: "The Godfather", year: 1972, votes: 511495, rating: 9.2, rank: 2, category: "Crime" },
-  { id: 3, title: "The Godfather: Part II", year: 1974, votes: 319352, rating: 9.0, rank: 3, category: "Crime" },
-  { id: 4, title: "The Good, the Bad and the Ugly", year: 1966, votes: 213030, rating: 8.9, rank: 4, category: "Western" },
-  { id: 5, title: "Pulp fiction", year: 1994, votes: 533848, rating: 8.9, rank: 5, category: "Crime" },
-  { id: 6, title: "12 Angry Men", year: 1957, votes: 164558, rating: 8.9, rank: 6, category: "Western" }
-];
-
-
-
 const data = {
   view: "datatable",
   id: "film_list",
@@ -62,7 +51,6 @@ const data = {
       $$("edit_films").setValues(item);
       $$("update_entry").setValue("Save");
     }
-
   },
   onClick: {
     "wxi-trash": function (e, id) {
@@ -147,16 +135,44 @@ const footer = { view: "template", template: copyright, autoheight: true, css: "
 const customers_toolbar = {
   view: "toolbar",
   cols: [
-    { view: "text" },
-    { view: "button", value: "Sort asc", css: "webix_primary" },
-    { view: "button", value: "Sort desc", css: "webix_primary" }
+    {
+      view: "text", id: "customers_filter",
+      on: {
+        onTimedKeyPress: function () {
+          var value = this.getValue().toLowerCase();
+          $$("customers_list").filter(function (obj) {
+            console.log(obj);
+            return obj.name.toLowerCase().indexOf(value) !== -1 ||
+              obj.country.toLowerCase().indexOf(value) !== -1;
+          })
+        }
+      }
+    },
+    {
+      view: "button", value: "Sort asc", css: "webix_primary", click: function () {
+        $$("customers_list").sort("#name#", "asc");
+      }
+    },
+    {
+      view: "button", value: "Sort desc", css: "webix_primary", click: function () {
+        $$("customers_list").sort("#name#", "desc");
+      }
+    }
   ]
 }
 
 const customers_list = {
   view: "list",
+  id: "customers_list",
   url: "src/users.js",
-  template: "#name# from #country#",
+  css: "customers_list",
+  template: "#name# from #country# <span class='webix_icon wxi-close remove-customer'></span>",
+  onClick: {
+    "remove-customer": function (e, id) {
+      this.remove(id);
+      return false;
+    }
+  },
   select: true
 }
 
@@ -207,5 +223,5 @@ let button_popup = webix.ui({
   }
 });
 
-/* TODO: convert numbers to whole numbers, clear selection on 
+/* TODO: convert numbers to whole numbers, clear selection on
 click outside the datatable, fix hover to overlap selection */
