@@ -40,7 +40,37 @@ const small_film_set = [
   { id: 6, title: "12 Angry Men", year: 1957, votes: 164558, rating: 8.9, rank: 6, category: "Western" }
 ];
 
-const data = { view: "datatable", id: "film_list", data: small_film_set, autoConfig: true, gravity: 3 };
+
+
+const data = { 
+  view: "datatable", 
+  id: "film_list", 
+  url: "src/data.js", 
+  columns:[
+    { id:"rank", header: [ "Rank", { content:"numberFilter"}], template:"#rank#", sort: "int", css: "rankings" },
+    { id:"title", header: [ "Title", { content:"textFilter"}], template:"#title#", width: 300, sort: "string" },
+    { id:"year", header:[ "Year", { content:"numberFilter"}], template:"#year#", sort: "int" },
+    { id:"votes", header:[ "Votes", { content:"numberFilter"}], template:"#votes#", sort: "int" },
+    { id:"rating", header:[ "Rating", { content:"numberFilter"}], template:"#rating#", sort: "int" },
+    { view:"list", id:"delete_entry", header: "", template: "<span class='webix_icon wxi-trash'></span>" }
+  ],
+  select: true,
+  on: {
+    onAfterSelect: function(id){
+      const item = $$("film_list").getItem(id);
+      $$("edit_films").setValues(item);
+      $$("update_entry").setValue("Save");
+    }
+    
+  },
+  onClick: {
+    "wxi-trash": function(e, id) {
+      this.remove(id);
+      return false;
+    }
+  }, 
+  hover: "hover"
+};
 
 const form = {
   view: "form", id: "edit_films", 
@@ -53,12 +83,20 @@ const form = {
     {
       cols: [
         {
-          view: "button", value: "Add new", css: "webix_primary", click: function () {
+          view: "button", value: "Add new", id:"update_entry", css: "webix_primary", click: function () {
             let result = $$("edit_films").validate();
             if (result) {
-              let current_entry = $$("edit_films").getValues();
-              $$("film_list").add(current_entry);
-              webix.message("Entry successfully added");
+              const values = $$("edit_films").getValues();
+              if (values.id) {
+                $$("film_list").updateItem(values.id, values);
+                webix.message("Entry successfully updated");
+              } else {
+                $$("film_list").add(values);
+                webix.message("Entry successfully added");
+              }
+              $$("film_list").clearSelection();
+              $$("edit_films").clear();
+              $$("update_entry").setValue("Add new");
             }
           }
         },
@@ -98,7 +136,7 @@ const form = {
   elementsConfig: {
     bottomPadding: 30
   },
-  gravity: 2
+  width: 300
 };
 
 const copyright = "The software is provided by <a target='_blank' href='https://webix.com'>https://webix.com</a>. All rights reserved (c)";
