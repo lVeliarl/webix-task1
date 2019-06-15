@@ -16,17 +16,18 @@ const toolbar = {
 
 const sidebar = {
   rows: [
-    { view: "list", 
-      data: list_items, 
-      select: true, 
-      css: "list", 
+    {
+      view: "list",
+      data: list_items,
+      select: true,
+      css: "list",
       width: 200,
       on: {
-        onAfterSelect: function(id) {
+        onAfterSelect: function (id) {
           $$(id).show();
         }
       }
-       },
+    },
     { view: "label", label: "<span class='webix_icon wxi-check'></span>Connected", align: "center", css: "connect-message" }
   ]
 };
@@ -42,38 +43,38 @@ const small_film_set = [
 
 
 
-const data = { 
-  view: "datatable", 
-  id: "film_list", 
-  url: "src/data.js", 
-  columns:[
-    { id:"rank", header: [ "Rank", { content:"numberFilter"}], template:"#rank#", sort: "int", css: "rankings" },
-    { id:"title", header: [ "Title", { content:"textFilter"}], template:"#title#", width: 300, sort: "string" },
-    { id:"year", header:[ "Year", { content:"numberFilter"}], template:"#year#", sort: "int" },
-    { id:"votes", header:[ "Votes", { content:"numberFilter"}], template:"#votes#", sort: "int" },
-    { id:"rating", header:[ "Rating", { content:"numberFilter"}], template:"#rating#", sort: "int" },
-    { view:"list", id:"delete_entry", header: "", template: "<span class='webix_icon wxi-trash'></span>" }
+const data = {
+  view: "datatable",
+  id: "film_list",
+  url: "src/data.js",
+  columns: [
+    { id: "rank", header: ["Rank", { content: "numberFilter" }], template: "#rank#", sort: "int", css: "rankings" },
+    { id: "title", header: ["Title", { content: "textFilter" }], template: "#title#", width: 300, sort: "string" },
+    { id: "year", header: ["Year", { content: "numberFilter" }], template: "#year#", sort: "int" },
+    { id: "votes", header: ["Votes", { content: "numberFilter" }], template: "#votes#", sort: "int" },
+    { id: "rating", header: ["Rating", { content: "numberFilter" }], template: "#rating#", sort: "int" },
+    { view: "list", id: "delete_entry", header: "", template: "<span class='webix_icon wxi-trash'></span>" }
   ],
   select: true,
   on: {
-    onAfterSelect: function(id){
+    onAfterSelect: function (id) {
       const item = $$("film_list").getItem(id);
       $$("edit_films").setValues(item);
       $$("update_entry").setValue("Save");
     }
-    
+
   },
   onClick: {
-    "wxi-trash": function(e, id) {
+    "wxi-trash": function (e, id) {
       this.remove(id);
       return false;
     }
-  }, 
+  },
   hover: "hover"
 };
 
 const form = {
-  view: "form", id: "edit_films", 
+  view: "form", id: "edit_films",
   elements: [
     { template: "Edit films", type: "section" },
     { view: "text", label: "Title", name: "title", invalidMessage: "Title cannot be empty" },
@@ -83,7 +84,7 @@ const form = {
     {
       cols: [
         {
-          view: "button", value: "Add new", id:"update_entry", css: "webix_primary", click: function () {
+          view: "button", value: "Add new", id: "update_entry", css: "webix_primary", click: function () {
             let result = $$("edit_films").validate();
             if (result) {
               const values = $$("edit_films").getValues();
@@ -143,12 +144,41 @@ const copyright = "The software is provided by <a target='_blank' href='https://
 
 const footer = { view: "template", template: copyright, autoheight: true, css: "footer" };
 
+const customers_toolbar = {
+  view: "toolbar",
+  cols: [
+    { view: "text" },
+    { view: "button", value: "Sort asc", css: "webix_primary" },
+    { view: "button", value: "Sort desc", css: "webix_primary" }
+  ]
+}
+
+const customers_list = {
+  view: "list",
+  url: "src/users.js",
+  template: "#name# from #country#",
+  select: true
+}
+
+const customers_chart = {
+  view: "chart",
+  type: "bar",
+  value: "#age#",
+  url: "src/users.js",
+  tooltip: "Age: #age#",
+  xAxis: {
+    title: "Age",
+    template: "#age#",
+    lines: true
+  }
+}
+
 const main = {
   cells: [
-    { id: "Dashboard", cols: [ data, form ]},
-    { id: "Users", template: "Users"},
-    { id: "Products", template: "Products"},
-    { id: "Admin", template: "Admin"}
+    { id: "Dashboard", cols: [data, form] },
+    { id: "Users", rows: [customers_toolbar, customers_list, customers_chart] },
+    { id: "Products", template: "Products" },
+    { id: "Admin", template: "Admin" }
   ]
 }
 
@@ -156,7 +186,7 @@ webix.ui({
   id: "app",
   rows: [
     toolbar,
-    { cols: [ sidebar, { view: "resizer" }, main ]},
+    { cols: [sidebar, { view: "resizer" }, main] },
     footer
   ]
 });
@@ -176,3 +206,6 @@ let button_popup = webix.ui({
     select: true
   }
 });
+
+/* TODO: convert numbers to whole numbers, clear selection on 
+click outside the datatable, fix hover to overlap selection */
