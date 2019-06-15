@@ -23,5 +23,5 @@
 }
 
 .customers_list .webix_list_item:nth-child(-n+5) {
-  background-color: rgb(114, 155, 202);
+  background-color: #83c8d1;
 }

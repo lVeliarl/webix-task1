@@ -189,12 +189,29 @@ const customers_chart = {
   }
 }
 
+const company_products = {
+  view: "treetable",
+  id: "company_products",
+  columns: [
+    { id: "id", header: ""},
+    { id: "title", header: "Title", template:"{common.treetable()} #title#", width: 250 },
+    { id: "price", header: "Price"}
+  ],
+  url: "src/products.js",
+  select: true,
+  on: {
+    onAfterLoad: function() {
+      $$("company_products").openAll();
+    }
+  }
+}
+
 const main = {
   cells: [
     { id: "Dashboard", cols: [data, form] },
     { id: "Users", rows: [customers_toolbar, customers_list, customers_chart] },
-    { id: "Products", template: "Products" },
-    { id: "Admin", template: "Admin" }
+    { id: "Products", rows: [company_products] },
+    { id: "Locations", template: "Locations" }
   ]
 }
 
