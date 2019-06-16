@@ -1,4 +1,6 @@
 let current_year = new Date().getFullYear();
+let clearView;
+
 const list_items = ['Dashboard', 'Users', 'Products', 'Admin'];
 
 const toolbar = {
@@ -49,6 +51,7 @@ const data = {
   select: true,
   on: {
     onAfterSelect: function (id) {
+      $$("edit_films").clearValidation();
       const item = $$("film_list").getItem(id);
       $$("edit_films").setValues(item);
       $$("update_entry").setValue("Save");
@@ -85,9 +88,7 @@ const form = {
                 $$("film_list").add(values);
                 webix.message("Entry successfully added");
               }
-              $$("film_list").clearSelection();
-              $$("edit_films").clear();
-              $$("update_entry").setValue("Add new");
+              clearView();
             }
           }
         },
@@ -111,12 +112,12 @@ const form = {
         }
       ]
     },
-    { id: "reset_selection" }
+    {}
   ],
   rules: {
     title: webix.rules.isNotEmpty,
     votes: function (vote) {
-      return parseFloat(vote.replace(/,/g, '')) < 100000;
+      return vote < 100000;
     },
     year: function (year) {
       return year >= 1970 && year <= current_year;
@@ -231,11 +232,29 @@ webix.attachEvent("onReady", function () {
   $$("sidebar").select("Dashboard");
 })
 
-$$("film_list").attachEvent("onAfterLoad", function() {
-  $$("film_list").data.each(function(obj, id){
-    let convertedVotes = obj.votes.replace(/\,/g,'');
-    $$("film_list").updateItem(id + 1, { votes: convertedVotes});
+$$("film_list").attachEvent("onAfterLoad", function () {
+  $$("film_list").data.each(function (obj, id) {
+    let convertedVotes = obj.votes.replace(/\,/g, '');
+    $$("film_list").updateItem(id + 1, { votes: convertedVotes });
   })
+})
+
+clearView = function () {
+  $$("edit_films").clear();
+  $$("edit_films").clearValidation();
+  $$("update_entry").setValue("Add new");
+}
+
+$$("edit_films").getNode().addEventListener("click", function (e) {
+  if (e.target.className !== "webix_button" && e.target.tagName !== "INPUT") {
+    clearView();
+  }
+})
+
+$$("sidebar").getNode().addEventListener("click", function (e) {
+  if (!e.target.classList.contains("webix_selected")) {
+    clearView();
+  }
 })
 
 let button_popup = webix.ui({
@@ -254,5 +273,3 @@ let button_popup = webix.ui({
   }
 });
 
-/* TODO: convert numbers to whole numbers, clear selection on
-click outside the datatable*/
