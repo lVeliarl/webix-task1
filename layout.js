@@ -1,5 +1,5 @@
 let current_year = new Date().getFullYear();
-const list_items = ['Dashboard', 'Users', 'Products', 'Locations'];
+const list_items = ['Dashboard', 'Users', 'Products', 'Admin'];
 
 const toolbar = {
   view: "toolbar", css: "webix_dark",
@@ -19,6 +19,7 @@ const sidebar = {
     {
       view: "list",
       data: list_items,
+      id: "sidebar",
       select: true,
       css: "list",
       width: 200,
@@ -26,7 +27,8 @@ const sidebar = {
         onAfterSelect: function (id) {
           $$(id).show();
         }
-      }
+      },
+      scroll: "auto"
     },
     { view: "label", label: "<span class='webix_icon wxi-check'></span>Connected", align: "center", css: "connect-message" }
   ]
@@ -40,8 +42,8 @@ const data = {
     { id: "rank", header: ["Rank", { content: "numberFilter" }], template: "#rank#", sort: "int", css: "rankings" },
     { id: "title", header: ["Title", { content: "textFilter" }], template: "#title#", width: 300, sort: "string" },
     { id: "year", header: ["Year", { content: "numberFilter" }], template: "#year#", sort: "int" },
-    { id: "votes", header: ["Votes", { content: "numberFilter" }], template: "#votes#", sort: "int" },
-    { id: "rating", header: ["Rating", { content: "numberFilter" }], template: "#rating#", sort: "int" },
+    { id: "votes", header: ["Votes", { content: "textFilter" }], template: "#votes#", sort: "int" },
+    { id: "rating", header: ["Rating", { content: "textFilter" }], template: "#rating#", sort: "string" },
     { view: "list", id: "delete_entry", header: "", template: "<span class='webix_icon wxi-trash'></span>" }
   ],
   select: true,
@@ -98,6 +100,7 @@ const form = {
               function () {
                 $$("edit_films").clear();
                 $$("edit_films").clearValidation();
+                $$("update_entry").setValue("Add new");
                 webix.message("Form cleared");
               },
               function () {
@@ -108,18 +111,18 @@ const form = {
         }
       ]
     },
-    {}
+    { id: "reset_selection" }
   ],
   rules: {
     title: webix.rules.isNotEmpty,
     votes: function (vote) {
-      return vote < 100000;
+      return parseFloat(vote.replace(/,/g, '')) < 100000;
     },
     year: function (year) {
       return year >= 1970 && year <= current_year;
     },
     rating: function (rating) {
-      return webix.rules.isNotEmpty(rating) && rating > 0;
+      return webix.rules.isNotEmpty(rating) && parseFloat(rating.replace(/,/g, '')) > 0;
     },
   },
   elementsConfig: {
@@ -141,7 +144,6 @@ const customers_toolbar = {
         onTimedKeyPress: function () {
           var value = this.getValue().toLowerCase();
           $$("customers_list").filter(function (obj) {
-            console.log(obj);
             return obj.name.toLowerCase().indexOf(value) !== -1 ||
               obj.country.toLowerCase().indexOf(value) !== -1;
           })
@@ -149,12 +151,12 @@ const customers_toolbar = {
       }
     },
     {
-      view: "button", value: "Sort asc", css: "webix_primary", click: function () {
+      view: "button", value: "Sort asc", maxWidth: 200, css: "webix_primary", click: function () {
         $$("customers_list").sort("#name#", "asc");
       }
     },
     {
-      view: "button", value: "Sort desc", css: "webix_primary", click: function () {
+      view: "button", value: "Sort desc", maxWidth: 200, css: "webix_primary", click: function () {
         $$("customers_list").sort("#name#", "desc");
       }
     }
@@ -173,7 +175,8 @@ const customers_list = {
       return false;
     }
   },
-  select: true
+  select: true,
+  maxHeight: 250
 }
 
 const customers_chart = {
@@ -193,14 +196,14 @@ const company_products = {
   view: "treetable",
   id: "company_products",
   columns: [
-    { id: "id", header: ""},
-    { id: "title", header: "Title", template:"{common.treetable()} #title#", width: 250 },
-    { id: "price", header: "Price"}
+    { id: "id", header: "" },
+    { id: "title", header: "Title", template: "{common.treetable()} #title#", width: 250 },
+    { id: "price", header: "Price" }
   ],
   url: "src/products.js",
   select: true,
   on: {
-    onAfterLoad: function() {
+    onAfterLoad: function () {
       $$("company_products").openAll();
     }
   }
@@ -211,7 +214,7 @@ const main = {
     { id: "Dashboard", cols: [data, form] },
     { id: "Users", rows: [customers_toolbar, customers_list, customers_chart] },
     { id: "Products", rows: [company_products] },
-    { id: "Locations", template: "Locations" }
+    { id: "Admin", template: "Admin" }
   ]
 }
 
@@ -223,6 +226,17 @@ webix.ui({
     footer
   ]
 });
+
+webix.attachEvent("onReady", function () {
+  $$("sidebar").select("Dashboard");
+})
+
+$$("film_list").attachEvent("onAfterLoad", function() {
+  $$("film_list").data.each(function(obj, id){
+    let convertedVotes = obj.votes.replace(/\,/g,'');
+    $$("film_list").updateItem(id + 1, { votes: convertedVotes});
+  })
+})
 
 let button_popup = webix.ui({
   view: "popup",
@@ -241,4 +255,4 @@ let button_popup = webix.ui({
 });
 
 /* TODO: convert numbers to whole numbers, clear selection on
-click outside the datatable, fix hover to overlap selection */
+click outside the datatable*/
