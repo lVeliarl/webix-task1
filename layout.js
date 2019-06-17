@@ -53,6 +53,12 @@ const data = {
       $$("edit_films").clearValidation();
       const item = $$("film_list").getItem(id);
       $$("edit_films").setValues(item);
+    },
+    onAfterLoad: function() {
+      $$("film_list").data.each(function (obj, id) {
+        let convertedVotes = obj.votes.replace(/\,/g, '');
+        $$("film_list").updateItem(id + 1, { votes: convertedVotes });
+      })
     }
   },
   onClick: {
@@ -236,20 +242,16 @@ const main = {
   ]
 }
 
-webix.ready(webix.ui({
-  id: "app",
-  rows: [
-    toolbar,
-    { cols: [sidebar, { view: "resizer" }, main] },
-    footer
-  ]
-}), $$("sidebar").select("Dashboard"));
-
-$$("film_list").attachEvent("onAfterLoad", function () {
-  $$("film_list").data.each(function (obj, id) {
-    let convertedVotes = obj.votes.replace(/\,/g, '');
-    $$("film_list").updateItem(id + 1, { votes: convertedVotes });
-  })
+webix.ready(function () {
+  webix.ui({
+    id: "app",
+    rows: [
+      toolbar,
+      { cols: [sidebar, { view: "resizer" }, main] },
+      footer
+    ]
+  }),
+    $$("sidebar").select("Dashboard");
 })
 
 function clearView() {
