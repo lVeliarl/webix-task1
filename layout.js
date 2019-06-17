@@ -35,6 +35,13 @@ const sidebar = {
   ]
 };
 
+const options = [
+  { "id": 1, "value": "Drama" },
+  { "id": 2, "value": "Fiction" },
+  { "id": 3, "value": "Comedy" },
+  { "id": 4, "value": "Horror" }
+];
+
 const data = {
   view: "datatable",
   id: "film_list",
@@ -42,14 +49,14 @@ const data = {
   columns: [
     { id: "rank", header: ["Rank", { content: "numberFilter" }], template: "#rank#", sort: "int", css: "rankings" },
     { id: "title", header: ["Title", { content: "textFilter" }], template: "#title#", sort: "string", fillspace: true },
-    { id: "categoryId", header: ["Category", { content: "textFilter" }], template: "#categoryId#", sort: "string" },
-    { id: "year", header: ["Year", { content: "numberFilter" }], template: "#year#", sort: "int" },
+    { id: "categoryId", header: ["Category", { content: "textFilter" }], sort: "string", collection: options },
     { id: "votes", header: ["Votes", { content: "textFilter" }], template: "#votes#", sort: "int" },
     { id: "rating", header: ["Rating", { content: "textFilter" }], template: "#rating#", sort: "string" },
+    { id: "year", header: "Year", template: "#year#" },
     { view: "list", id: "delete_entry", header: "", template: "<span class='webix_icon wxi-trash'></span>" }
   ],
   scheme: {
-    $init: function(obj) {
+    $init: function (obj) {
       let min = 1;
       let max = 5;
       obj.categoryId = Math.floor(Math.random() * (max - min) + min);
@@ -231,11 +238,11 @@ const company_products = {
     }
   },
   rules: {
-    "title": function(obj) {
+    "title": function (obj) {
       return webix.rules.isNotEmpty(obj) && obj.length > 2;
     },
-    "price": function(obj) {
-      return webix.rules.isNotEmpty(obj) && obj > 0;  
+    "price": function (obj) {
+      return webix.rules.isNotEmpty(obj) && obj > 0;
     }
   }
 }
