@@ -1,5 +1,4 @@
 let current_year = new Date().getFullYear();
-let clearView;
 
 const list_items = ['Dashboard', 'Users', 'Products', 'Admin'];
 
@@ -42,7 +41,7 @@ const data = {
   url: "src/data.js",
   columns: [
     { id: "rank", header: ["Rank", { content: "numberFilter" }], template: "#rank#", sort: "int", css: "rankings" },
-    { id: "title", header: ["Title", { content: "textFilter" }], template: "#title#", width: 300, sort: "string" },
+    { id: "title", header: ["Title", { content: "textFilter" }], template: "#title#", sort: "string", fillspace: true },
     { id: "year", header: ["Year", { content: "numberFilter" }], template: "#year#", sort: "int" },
     { id: "votes", header: ["Votes", { content: "textFilter" }], template: "#votes#", sort: "int" },
     { id: "rating", header: ["Rating", { content: "textFilter" }], template: "#rating#", sort: "string" },
@@ -54,12 +53,21 @@ const data = {
       $$("edit_films").clearValidation();
       const item = $$("film_list").getItem(id);
       $$("edit_films").setValues(item);
-      $$("update_entry").setValue("Save");
     }
   },
   onClick: {
     "wxi-trash": function (e, id) {
-      this.remove(id);
+      webix.confirm({
+        title: "Delete this film",
+        text: "Do you really want to delete this film from the list?"
+      }).then(
+        function () {
+          $$("film_list").remove(id);
+          webix.message("Item removed");
+        },
+        function () {
+          webix.message("Cancelled");
+        })
       return false;
     }
   },
@@ -77,7 +85,7 @@ const form = {
     {
       cols: [
         {
-          view: "button", value: "Add new", id: "update_entry", css: "webix_primary", click: function () {
+          view: "button", value: "Save", id: "update_entry", css: "webix_primary", click: function () {
             let result = $$("edit_films").validate();
             if (result) {
               const values = $$("edit_films").getValues();
@@ -101,7 +109,6 @@ const form = {
               function () {
                 $$("edit_films").clear();
                 $$("edit_films").clearValidation();
-                $$("update_entry").setValue("Add new");
                 webix.message("Form cleared");
               },
               function () {
@@ -172,7 +179,17 @@ const customers_list = {
   template: "#name# from #country# <span class='webix_icon wxi-close remove-customer'></span>",
   onClick: {
     "remove-customer": function (e, id) {
-      this.remove(id);
+      webix.confirm({
+        title: "Remove the user",
+        text: "Do you really want to remove this user from the list?"
+      }).then(
+        function () {
+          $$("customers_list").remove(id);
+          webix.message("User removed");
+        },
+        function () {
+          webix.message("Cancelled");
+        })
       return false;
     }
   },
@@ -219,18 +236,14 @@ const main = {
   ]
 }
 
-webix.ui({
+webix.ready(webix.ui({
   id: "app",
   rows: [
     toolbar,
     { cols: [sidebar, { view: "resizer" }, main] },
     footer
   ]
-});
-
-webix.attachEvent("onReady", function () {
-  $$("sidebar").select("Dashboard");
-})
+}), $$("sidebar").select("Dashboard"));
 
 $$("film_list").attachEvent("onAfterLoad", function () {
   $$("film_list").data.each(function (obj, id) {
@@ -239,23 +252,10 @@ $$("film_list").attachEvent("onAfterLoad", function () {
   })
 })
 
-clearView = function () {
+function clearView() {
   $$("edit_films").clear();
   $$("edit_films").clearValidation();
-  $$("update_entry").setValue("Add new");
 }
-
-$$("edit_films").getNode().addEventListener("click", function (e) {
-  if (e.target.className !== "webix_button" && e.target.tagName !== "INPUT") {
-    clearView();
-  }
-})
-
-$$("sidebar").getNode().addEventListener("click", function (e) {
-  if (!e.target.classList.contains("webix_selected")) {
-    clearView();
-  }
-})
 
 let button_popup = webix.ui({
   view: "popup",

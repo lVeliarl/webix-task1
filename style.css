@@ -14,7 +14,7 @@
   background-color: #F4F5F9;
 }
 
-.hover.webix_cell {
+.hover.webix_cell, .webix_column > div.hover.webix_row_select {
   background-color: #83c8d1;
 }
 
