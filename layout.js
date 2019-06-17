@@ -42,19 +42,27 @@ const data = {
   columns: [
     { id: "rank", header: ["Rank", { content: "numberFilter" }], template: "#rank#", sort: "int", css: "rankings" },
     { id: "title", header: ["Title", { content: "textFilter" }], template: "#title#", sort: "string", fillspace: true },
+    { id: "categoryId", header: ["Category", { content: "textFilter" }], template: "#categoryId#", sort: "string" },
     { id: "year", header: ["Year", { content: "numberFilter" }], template: "#year#", sort: "int" },
     { id: "votes", header: ["Votes", { content: "textFilter" }], template: "#votes#", sort: "int" },
     { id: "rating", header: ["Rating", { content: "textFilter" }], template: "#rating#", sort: "string" },
     { view: "list", id: "delete_entry", header: "", template: "<span class='webix_icon wxi-trash'></span>" }
   ],
+  scheme: {
+    $init: function(obj) {
+      let min = 1;
+      let max = 5;
+      obj.categoryId = Math.floor(Math.random() * (max - min) + min);
+    }
+  },
   select: true,
   on: {
-    onAfterSelect: function (id) {
-      $$("edit_films").clearValidation();
-      const item = $$("film_list").getItem(id);
-      $$("edit_films").setValues(item);
-    },
-    onAfterLoad: function() {
+    // onAfterSelect: function (id) {
+    //   $$("edit_films").clearValidation();
+    //   const item = $$("film_list").getItem(id);
+    //   $$("edit_films").setValues(item);
+    // },
+    onAfterLoad: function () {
       $$("film_list").data.each(function (obj, id) {
         let convertedVotes = obj.votes.replace(/\,/g, '');
         $$("film_list").updateItem(id + 1, { votes: convertedVotes });
@@ -92,18 +100,7 @@ const form = {
       cols: [
         {
           view: "button", value: "Save", id: "update_entry", css: "webix_primary", click: function () {
-            let result = $$("edit_films").validate();
-            if (result) {
-              const values = $$("edit_films").getValues();
-              if (values.id) {
-                $$("film_list").updateItem(values.id, values);
-                webix.message("Entry successfully updated");
-              } else {
-                $$("film_list").add(values);
-                webix.message("Entry successfully added");
-              }
-              clearView();
-            }
+            $$("edit_films").save();
           }
         },
         {
@@ -113,6 +110,7 @@ const form = {
               text: "Do you really want to clear this form?"
             }).then(
               function () {
+                $$("film_list").clearSelection();
                 $$("edit_films").clear();
                 $$("edit_films").clearValidation();
                 webix.message("Form cleared");
@@ -221,14 +219,23 @@ const company_products = {
   id: "company_products",
   columns: [
     { id: "id", header: "" },
-    { id: "title", header: "Title", template: "{common.treetable()} #title#", width: 250 },
-    { id: "price", header: "Price" }
+    { id: "title", header: "Title", template: "{common.treetable()} #title#", width: 250, editor: "text" },
+    { id: "price", header: "Price", editor: "text" }
   ],
   url: "src/products.js",
-  select: true,
+  editable: true,
+  editaction: "dblclick",
   on: {
     onAfterLoad: function () {
       $$("company_products").openAll();
+    }
+  },
+  rules: {
+    "title": function(obj) {
+      return webix.rules.isNotEmpty(obj) && obj.length > 2;
+    },
+    "price": function(obj) {
+      return webix.rules.isNotEmpty(obj) && obj > 0;  
     }
   }
 }
@@ -252,12 +259,8 @@ webix.ready(function () {
     ]
   }),
     $$("sidebar").select("Dashboard");
+  $$("edit_films").bind($$("film_list"));
 })
-
-function clearView() {
-  $$("edit_films").clear();
-  $$("edit_films").clearValidation();
-}
 
 let button_popup = webix.ui({
   view: "popup",
@@ -274,4 +277,10 @@ let button_popup = webix.ui({
     select: true
   }
 });
+
+function clearView() {
+  $$("edit_films").clear();
+  $$("edit_films").clearValidation();
+}
+
 
