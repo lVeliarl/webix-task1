@@ -35,12 +35,9 @@ const sidebar = {
   ]
 };
 
-const options = [
-  { "id": 1, "value": "Drama" },
-  { "id": 2, "value": "Fiction" },
-  { "id": 3, "value": "Comedy" },
-  { "id": 4, "value": "Horror" }
-];
+const options = new webix.DataCollection({
+  url: "src/categories.js"
+})
 
 const data = {
   view: "datatable",
@@ -60,7 +57,7 @@ const data = {
     $init: function (obj) {
       obj.categoryId = randomRange(1, 5);
       obj.votes = parseInt(obj.votes.replace(/\,/g, ''));
-      obj.rating = parseInt(obj.rating.replace(/\,/g, ''));
+      obj.rating = parseFloat(obj.rating.replace(/\,/g, '.'));
     }
   },
   onClick: {
@@ -183,22 +180,27 @@ webix.protoUI({
   name: "edit_list"
 }, webix.EditAbility, webix.ui.list);
 
-const customers_list = {
-  view: "edit_list",
-  id: "customers_list",
+
+const users = new webix.DataCollection({
   url: "src/users.js",
-  editable: true,
-  editor: "text",
-  editValue: "name",
-  editaction: "dblclick",
-  template: "#name# from #country# <span class='webix_icon wxi-close remove-customer'></span>",
   scheme: {
     $init: function (obj) {
       if (obj.age < 26) {
         obj.$css = "highlight";
       }
     }
-  },
+  }
+})
+
+const customers_list = {
+  view: "edit_list",
+  id: "customers_list",
+  data: users,
+  editable: true,
+  editor: "text",
+  editValue: "name",
+  editaction: "dblclick",
+  template: "#name# from #country# <span class='webix_icon wxi-close remove-customer'></span>",
   onClick: {
     "remove-customer": function (e, id) {
       webix.confirm({
@@ -276,6 +278,14 @@ const tabbar = {
   }
 }
 
+const admin_controls = {
+  view: "datatable",
+  id: "Admin",
+  columns: [
+    {id: "categories", header: "Catergories", template: "#value#"}
+  ]
+}
+
 const main = {
   cells: [
     {
@@ -291,7 +301,7 @@ const main = {
     },
     { id: "Users", rows: [customers_toolbar, customers_list, customers_chart] },
     company_products,
-    { id: "Admin", template: "Admin" }
+    admin_controls
   ]
 }
 
@@ -337,6 +347,8 @@ webix.ready(function () {
       }
     })
   });
+
+  $$("Admin").sync(options);
 })
 
 const button_popup = webix.ui({
