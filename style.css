@@ -22,6 +22,6 @@
   float: right;
 }
 
-.customers_list .webix_list_item:nth-child(-n+5) {
+.highlight {
   background-color: #83c8d1;
 }

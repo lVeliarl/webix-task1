@@ -57,9 +57,7 @@ const data = {
   ],
   scheme: {
     $init: function (obj) {
-      let min = 1;
-      let max = 5;
-      obj.categoryId = Math.floor(Math.random() * (max - min) + min);
+      obj.categoryId = randomRange(1, 5);
     }
   },
   select: true,
@@ -178,16 +176,37 @@ const customers_toolbar = {
       view: "button", value: "Sort desc", maxWidth: 200, css: "webix_primary", click: function () {
         $$("customers_list").sort("#name#", "desc");
       }
+    },
+    {
+      view: "button", value: "Add new", maxWidth: 200, css: "webix_primary", click: function() {
+        $$("customers_list").add({
+          "name":"Tanya Krieg", "age": randomRange(18, 51), "country":"Germany"
+        })
+      }
     }
   ]
 }
 
+webix.protoUI({
+  name: "edit_list"
+}, webix.EditAbility, webix.ui.list);
+
 const customers_list = {
-  view: "list",
+  view: "edit_list",
   id: "customers_list",
   url: "src/users.js",
-  css: "customers_list",
+  editable:true,
+  editor:"text",
+  editValue:"name",
+  editaction: "dblclick",
   template: "#name# from #country# <span class='webix_icon wxi-close remove-customer'></span>",
+  scheme: {
+    $init: function(obj) {
+      if (obj.age < 26) {
+        obj.$css = "highlight";
+      }
+    }
+  },
   onClick: {
     "remove-customer": function (e, id) {
       webix.confirm({
@@ -210,15 +229,16 @@ const customers_list = {
 
 const customers_chart = {
   view: "chart",
+  id: "customers_chart",
   type: "bar",
   value: "#age#",
-  url: "src/users.js",
   tooltip: "Age: #age#",
   xAxis: {
-    title: "Age",
-    template: "#age#",
+    title: "Country",
+    template: "#country#",
     lines: true
-  }
+  },
+  yAxis: {}
 }
 
 const company_products = {
@@ -247,9 +267,30 @@ const company_products = {
   }
 }
 
+const tabbar = {
+  view: "tabbar",
+  id: "tabbar",
+  options: [
+    { value: "All", id: "all" },
+    { value: "Old", id: "old" },
+    { value: "Modern", id: "modern" },
+    { value: "New", id: "new" }
+  ]
+}
+
 const main = {
   cells: [
-    { id: "Dashboard", cols: [data, form] },
+    {
+      id: "Dashboard",
+      cols: [
+        {
+          rows: [
+            tabbar, data
+          ]
+        },
+        form
+      ]
+    },
     { id: "Users", rows: [customers_toolbar, customers_list, customers_chart] },
     { id: "Products", rows: [company_products] },
     { id: "Admin", template: "Admin" }
@@ -267,6 +308,31 @@ webix.ready(function () {
   }),
     $$("sidebar").select("Dashboard");
   $$("edit_films").bind($$("film_list"));
+
+  $$("film_list").registerFilter(
+    $$("tabbar"),
+    {
+      columnId: "year", 
+      compare: function (value, filter, item) {
+        if (value > 1970) {
+          return value > 1970
+        }
+      }
+    },
+    {
+      getValue: function (node) { return node.getValue(); },
+      setValue: function (node, value) { node.setValue(value); }
+    }
+  )
+
+  $$("customers_chart").sync($$("customers_list"), function() {
+    $$("customers_chart").group({
+      by: "country",
+      map: {
+        age: ["age", "sum"]
+      }
+    })
+  });
 })
 
 let button_popup = webix.ui({
@@ -290,4 +356,6 @@ function clearView() {
   $$("edit_films").clearValidation();
 }
 
-
+function randomRange(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
