@@ -55,15 +55,12 @@ const data = {
     { id: "year", header: "Year", template: "#year#" },
     { view: "list", id: "delete_entry", header: "", template: "<span class='webix_icon wxi-trash'></span>" }
   ],
-  scheme: {
-    $init: function (obj) {
-      obj.categoryId = randomRange(1, 5);
-    }
-  },
   select: true,
   scheme: {
     $init: function (obj) {
-      obj.votes = obj.votes.replace(/\,/g, '');
+      obj.categoryId = randomRange(1, 5);
+      obj.votes = parseInt(obj.votes.replace(/\,/g, ''));
+      obj.rating = parseInt(obj.rating.replace(/\,/g, ''));
     }
   },
   onClick: {
