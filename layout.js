@@ -61,12 +61,9 @@ const data = {
     }
   },
   select: true,
-  on: {
-    onAfterLoad: function () {
-      $$("film_list").data.each(function (obj, id) {
-        let convertedVotes = obj.votes.replace(/\,/g, '');
-        $$("film_list").updateItem(id + 1, { votes: convertedVotes });
-      })
+  scheme: {
+    $init: function (obj) {
+      obj.votes = obj.votes.replace(/\,/g, '');
     }
   },
   onClick: {
@@ -100,7 +97,11 @@ const form = {
       cols: [
         {
           view: "button", value: "Save", id: "update_entry", css: "webix_primary", click: function () {
-            $$("edit_films").save();
+            let result = $$("edit_films").validate();
+            if (result) {
+              $$("edit_films").save();
+              webix.message("Entry successfully updated");
+            } 
           }
         },
         {
@@ -270,8 +271,8 @@ const tabbar = {
     { id: 3, value: "Modern" },
     { id: 4, value: "New" }
   ],
-  on:{
-    onChange:function(){
+  on: {
+    onChange: function () {
       $$("film_list").filterByAll();
     }
 
