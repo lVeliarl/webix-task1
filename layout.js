@@ -62,16 +62,14 @@ const data = {
   },
   select: true,
   on: {
-    // onAfterSelect: function (id) {
-    //   $$("edit_films").clearValidation();
-    //   const item = $$("film_list").getItem(id);
-    //   $$("edit_films").setValues(item);
-    // },
     onAfterLoad: function () {
       $$("film_list").data.each(function (obj, id) {
         let convertedVotes = obj.votes.replace(/\,/g, '');
         $$("film_list").updateItem(id + 1, { votes: convertedVotes });
       })
+    },
+    onAfterFilter:function(){
+      $$("film_list").filterByAll();
     }
   },
   onClick: {
@@ -178,9 +176,9 @@ const customers_toolbar = {
       }
     },
     {
-      view: "button", value: "Add new", maxWidth: 200, css: "webix_primary", click: function() {
+      view: "button", value: "Add new", maxWidth: 200, css: "webix_primary", click: function () {
         $$("customers_list").add({
-          "name":"Tanya Krieg", "age": randomRange(18, 51), "country":"Germany"
+          "name": "Tanya Krieg", "age": randomRange(18, 51), "country": "Germany"
         })
       }
     }
@@ -195,13 +193,13 @@ const customers_list = {
   view: "edit_list",
   id: "customers_list",
   url: "src/users.js",
-  editable:true,
-  editor:"text",
-  editValue:"name",
+  editable: true,
+  editor: "text",
+  editValue: "name",
   editaction: "dblclick",
   template: "#name# from #country# <span class='webix_icon wxi-close remove-customer'></span>",
   scheme: {
-    $init: function(obj) {
+    $init: function (obj) {
       if (obj.age < 26) {
         obj.$css = "highlight";
       }
@@ -231,7 +229,7 @@ const customers_chart = {
   view: "chart",
   id: "customers_chart",
   type: "bar",
-  value: "#age#",
+  value: "#count#",
   tooltip: "Age: #age#",
   xAxis: {
     title: "Country",
@@ -269,12 +267,12 @@ const company_products = {
 
 const tabbar = {
   view: "tabbar",
-  id: "tabbar",
+  id: "filter_films",
   options: [
-    { value: "All", id: "all" },
-    { value: "Old", id: "old" },
-    { value: "Modern", id: "modern" },
-    { value: "New", id: "new" }
+    { id: 1, value: "All" },
+    { id: 2, value: "Old" },
+    { id: 3, value: "Modern" },
+    { id: 4, value: "New" }
   ]
 }
 
@@ -310,13 +308,17 @@ webix.ready(function () {
   $$("edit_films").bind($$("film_list"));
 
   $$("film_list").registerFilter(
-    $$("tabbar"),
+    $$("filter_films"),
     {
-      columnId: "year", 
+      columnId: "year",
       compare: function (value, filter, item) {
-        if (value > 1970) {
-          return value > 1970
-        }
+        if (filter == 1)
+          return value;
+        if (filter == 2)
+          return value < 1980;
+        if (filter == 3)
+          return value >= 1980 && value < 2010;
+        return value >= 2010;
       }
     },
     {
@@ -325,17 +327,17 @@ webix.ready(function () {
     }
   )
 
-  $$("customers_chart").sync($$("customers_list"), function() {
+  $$("customers_chart").sync($$("customers_list"), function () {
     $$("customers_chart").group({
       by: "country",
       map: {
-        age: ["age", "sum"]
+        count: ["name", "count"]
       }
     })
   });
 })
 
-let button_popup = webix.ui({
+const button_popup = webix.ui({
   view: "popup",
   id: "settings",
   body: {
