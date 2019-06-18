@@ -67,9 +67,6 @@ const data = {
         let convertedVotes = obj.votes.replace(/\,/g, '');
         $$("film_list").updateItem(id + 1, { votes: convertedVotes });
       })
-    },
-    onAfterFilter:function(){
-      $$("film_list").filterByAll();
     }
   },
   onClick: {
@@ -114,8 +111,7 @@ const form = {
             }).then(
               function () {
                 $$("film_list").clearSelection();
-                $$("edit_films").clear();
-                $$("edit_films").clearValidation();
+                clearView();
                 webix.message("Form cleared");
               },
               function () {
@@ -230,7 +226,7 @@ const customers_chart = {
   id: "customers_chart",
   type: "bar",
   value: "#count#",
-  tooltip: "Age: #age#",
+  tooltip: "Number of residents: #count#",
   xAxis: {
     title: "Country",
     template: "#country#",
@@ -241,7 +237,7 @@ const customers_chart = {
 
 const company_products = {
   view: "treetable",
-  id: "company_products",
+  id: "Products",
   columns: [
     { id: "id", header: "" },
     { id: "title", header: "Title", template: "{common.treetable()} #title#", width: 250, editor: "text" },
@@ -252,7 +248,7 @@ const company_products = {
   editaction: "dblclick",
   on: {
     onAfterLoad: function () {
-      $$("company_products").openAll();
+      this.openAll();
     }
   },
   rules: {
@@ -273,7 +269,13 @@ const tabbar = {
     { id: 2, value: "Old" },
     { id: 3, value: "Modern" },
     { id: 4, value: "New" }
-  ]
+  ],
+  on:{
+    onChange:function(){
+      $$("film_list").filterByAll();
+    }
+
+  }
 }
 
 const main = {
@@ -290,7 +292,7 @@ const main = {
       ]
     },
     { id: "Users", rows: [customers_toolbar, customers_list, customers_chart] },
-    { id: "Products", rows: [company_products] },
+    company_products,
     { id: "Admin", template: "Admin" }
   ]
 }
@@ -312,13 +314,15 @@ webix.ready(function () {
     {
       columnId: "year",
       compare: function (value, filter, item) {
-        if (filter == 1)
+        if (filter == 1) {
           return value;
-        if (filter == 2)
+        }
+        if (filter == 2) {
           return value < 1980;
-        if (filter == 3)
+        }
+        if (filter == 3) {
           return value >= 1980 && value < 2010;
-        return value >= 2010;
+        } else return value >= 2010;
       }
     },
     {
@@ -328,7 +332,7 @@ webix.ready(function () {
   )
 
   $$("customers_chart").sync($$("customers_list"), function () {
-    $$("customers_chart").group({
+    this.group({
       by: "country",
       map: {
         count: ["name", "count"]
