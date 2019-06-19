@@ -50,7 +50,7 @@ const data = {
     { id: "votes", header: ["Votes", { content: "textFilter" }], template: "#votes#", sort: "int" },
     { id: "rating", header: ["Rating", { content: "textFilter" }], template: "#rating#", sort: "string" },
     { id: "year", header: "Year", template: "#year#" },
-    { view: "list", id: "delete_entry", header: "", template: "<span class='webix_icon wxi-trash'></span>" }
+    { id: "delete_entry", header: "", template: "<span class='webix_icon wxi-trash'></span>" }
   ],
   select: true,
   scheme: {
@@ -95,7 +95,7 @@ const form = {
             if (result) {
               $$("edit_films").save();
               webix.message("Entry successfully updated");
-            } 
+            }
           }
         },
         {
@@ -195,7 +195,6 @@ const users = new webix.DataCollection({
 const customers_list = {
   view: "edit_list",
   id: "customers_list",
-  data: users,
   editable: true,
   editor: "text",
   editValue: "name",
@@ -280,10 +279,60 @@ const tabbar = {
 
 const admin_controls = {
   view: "datatable",
-  id: "Admin",
+  id: "admin_controls",
   columns: [
-    {id: "categories", header: "Catergories", template: "#value#"}
-  ]
+    { id: "categories", header: "Categories", template: "#value#", fillspace: true },
+    { id: "delete_category", header: "", template: "<span class='webix_icon wxi-close remove-category'></span>" }
+  ],
+  onClick: {
+    "remove-category": function (e, id) {
+      webix.confirm({
+        title: "Remove the category",
+        text: "Do you really want to remove this category?"
+      }).then(function () {
+        $$("admin_controls").remove(id);
+      })
+    }
+  },
+  select: true
+}
+
+const admin_controls_form = {
+  view: "form",
+  id: "admin_controls_form",
+  value: "Save",
+  elements: [
+    { view: "text", label: "Category", name: "value" },
+    { view: "richselect", label: "Select", name: "categoryId", options: options},
+    {
+      cols: [
+        {
+          view: "button", value: "Save", click: function () {
+            $$("admin_controls_form").save();
+          }
+        },
+        {
+          view: "button", value: "Clear", click: function () {
+            webix.confirm({
+              title: "Clear the form",
+              text: "Do you really want to clear this form?"
+            }).then(
+              function () {
+                $$("admin_controls").clearSelection();
+                $$("admin_controls_form").clear();
+                webix.message("Form cleared");
+              },
+              function () {
+                webix.message("Cancelled");
+              }
+            );
+          }
+        }
+      ]
+    },
+    {}
+  ],
+  width: 350
 }
 
 const main = {
@@ -301,7 +350,7 @@ const main = {
     },
     { id: "Users", rows: [customers_toolbar, customers_list, customers_chart] },
     company_products,
-    admin_controls
+    { id: "Admin", cols: [admin_controls, admin_controls_form] }
   ]
 }
 
@@ -339,6 +388,8 @@ webix.ready(function () {
     }
   )
 
+  $$("customers_list").sync(users);
+
   $$("customers_chart").sync($$("customers_list"), function () {
     this.group({
       by: "country",
@@ -348,7 +399,8 @@ webix.ready(function () {
     })
   });
 
-  $$("Admin").sync(options);
+  $$("admin_controls").sync(options);
+  $$("admin_controls_form").bind($$("admin_controls"));
 })
 
 const button_popup = webix.ui({
