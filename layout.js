@@ -46,7 +46,7 @@ const data = {
   columns: [
     { id: "rank", header: ["Rank", { content: "numberFilter" }], template: "#rank#", sort: "int", css: "rankings" },
     { id: "title", header: ["Title", { content: "textFilter" }], template: "#title#", sort: "string", fillspace: true },
-    { id: "categoryId", header: ["Category", { content: "textFilter" }], sort: "string", collection: options },
+    { id: "categoryId", header: ["Category", { content: "selectFilter" }], sort: "string", collection: options },
     { id: "votes", header: ["Votes", { content: "textFilter" }], template: "#votes#", sort: "int" },
     { id: "rating", header: ["Rating", { content: "textFilter" }], template: "#rating#", sort: "string" },
     { id: "year", header: "Year", template: "#year#" },
@@ -87,6 +87,7 @@ const form = {
     { view: "text", label: "Year", name: "year", invalidMessage: `Year should be between 1970 and ${current_year}` },
     { view: "text", label: "Rating", name: "rating", invalidMessage: "Rating cannot be empty or equal 0" },
     { view: "text", label: "Votes", name: "votes", invalidMessage: "Votes must be less than 100000" },
+    { view: "richselect", label: "Select", name: "categoryId", options: options },
     {
       cols: [
         {
@@ -158,17 +159,17 @@ const customers_toolbar = {
     },
     {
       view: "button", value: "Sort asc", maxWidth: 200, css: "webix_primary", click: function () {
-        $$("customers_list").sort("#name#", "asc");
+        users.sort("#name#", "asc");
       }
     },
     {
       view: "button", value: "Sort desc", maxWidth: 200, css: "webix_primary", click: function () {
-        $$("customers_list").sort("#name#", "desc");
+        users.sort("#name#", "desc");
       }
     },
     {
       view: "button", value: "Add new", maxWidth: 200, css: "webix_primary", click: function () {
-        $$("customers_list").add({
+        users.add({
           "name": "Tanya Krieg", "age": randomRange(18, 51), "country": "Germany"
         })
       }
@@ -303,7 +304,6 @@ const admin_controls_form = {
   value: "Save",
   elements: [
     { view: "text", label: "Category", name: "value" },
-    { view: "richselect", label: "Select", name: "categoryId", options: options},
     {
       cols: [
         {
@@ -390,7 +390,7 @@ webix.ready(function () {
 
   $$("customers_list").sync(users);
 
-  $$("customers_chart").sync($$("customers_list"), function () {
+  $$("customers_chart").sync((users), function () {
     this.group({
       by: "country",
       map: {
